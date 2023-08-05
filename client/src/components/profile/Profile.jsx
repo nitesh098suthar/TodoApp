@@ -1,10 +1,24 @@
 import { Box, Heading, Text, Button, VStack } from "@chakra-ui/react";
 import React, { useEffect } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import Spinner from "../layout/Spinner";
+import toast from 'react-hot-toast'
 
 const Profile = ({ isAuth }) => {
+  const dispatch = useDispatch();
+
+  const {message , error} = useSelector(state=> state.auth)
+  useEffect(() => {
+    if (message) {
+      toast.success(message);
+      dispatch({ type: "clearMessage" });
+    }
+    if (error) {
+      toast.error(error);
+      dispatch({ type: "clearError" });
+    }
+  }, [message, error]);
 
   const {loading, user} = useSelector((state) => state.auth);
   

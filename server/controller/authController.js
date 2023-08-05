@@ -1,158 +1,67 @@
-import bcrypt from "bcryptjs/dist/bcrypt.js";
+import { catchAsyncError } from "../utils/catchAsyncError.js";
 import { UserModel } from "../Model/Auth.js";
 import { mailSender } from "../utils/mailSender.js";
 import crypto from "crypto";
+import ErrorHandler from "../utils/ErrorHandler.js";
+import { sendToken } from "../utils/sendToken.js";
 
-export const signupController = async (req, res) => {
-  try {
-    const { name, email, password } = req.body;
+export const signupController = catchAsyncError(async (req, res, next) => {
+  const { name, email, password } = req.body;
+  if (!name || !email || !password)
+    return next(new ErrorHandler(401, "Fill all Fields"));
+  const isValid = await UserModel.findOne({ email });
+  if (isValid) return next(new ErrorHandler(401, "Wrong Credentials"));
+  const newUser = await UserModel.create({ name, email, password });
 
-    if (!name || !email || !password) {
-      return res.status(404).json({
-        success: false,
-        message: "Fill all fields",
-      });
-    }
+  return sendToken(newUser, 201, "Signup Successfully", res);
+});
 
-    const isValid = await UserModel.findOne({ email });
+export const loginController = catchAsyncError(async (req, res) => {
+  const { email, password } = req.body;
+  const isAvailable = await UserModel.findOne({ email }).select("+password");
 
-    if (isValid) {
-      return res.status(401).json({
-        success: false,
-        message: "Wrong Credentials",
-      });
-    }
-
-    const newUser = await UserModel.create({ name, email, password });
-
-    const token = newUser.genToken();
-
-    //token = long dangerous cookie
-
-    return res
-      .status(201)
-      .cookie("token", token, {
-        expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-        secure: true,
-        httpOnly: true,
-        sameSite: "none",
-      })
-      .json({
-        success: true,
-        message: "SignUp Successfully",
-      });
-  } catch (e) {
+  if (!isAvailable) {
     return res.status(401).json({
       success: false,
-      error: e.message,
+      message: "wrong credentials",
     });
   }
-};
+  const isMatch = await isAvailable.comparePassword(password);
+  if (!isMatch) return next(new ErrorHandler(401, "Wrong Credentials"));
+  return sendToken(isAvailable, 200, "Login Successfully", res);
+});
 
-export const loginController = async (req, res) => {
-  try {
-    const { email, password } = req.body; //nitesh098suthar@gmial.com 99999
-    const isAvailable = await UserModel.findOne({ email }).select("+password");
-
-    if (!isAvailable) {
-      return res.status(401).json({
-        success: false,
-        message: "wrong credentials",
-      });
-    }
-    const isMatch = await isAvailable.comparePassword(password);
-    if (!isMatch) {
-      return res.status(401).json({
-        success: false,
-        message: "wrong credentials",
-      });
-    }
-
-    const token = isAvailable.genToken();
-
-    return res
-      .status(200)
-      .cookie("token", token, {
-        expires: new Date(Date.now() + 32 * 24 * 60 * 60 * 1000),
-        secure: true,
-        httpOnly: true,
-        sameSite: "none",
-      })
-      .json({
-        success: true,
-        message: "Logged in Successfully",
-      });
-  } catch (e) {
-    console.log(e);
-    return res.status(401).json({
-        success: false,
-        error: 'error'
-    })
-  }
-};
-
-export const getController = async (req, res) => {
-
+export const getController = catchAsyncError(async (req, res) => {
   const userId = req.id;
-  if (!userId) {
-    return res.status(401).json({
-      success: false,
-      message: "Unauthorized User 3",
-    });
-  }
-
+  if (!userId) return next(new ErrorHandler(401, "unauthorized user"));
   const user = await UserModel.findById(userId);
-
-  if (!user) {
-    return res.status(401).json({
-      success: false,
-      message: "Unauthorized User 4",
-    });
-  }
-
+  if (!user) return next(new ErrorHandler(401, "unauthorized user"));
   res.status(200).json({
     success: true,
     user,
   });
-};
+});
 
-export const editController = async (req, res) => {
+export const editController = catchAsyncError(async (req, res) => {
   const userID = req.id;
-  if (!userID) {
-    return res.status(401).json({
-      success: false,
-      message: "unauthorized user",
-    });
-  }
-
+  if (!userID) return next(new ErrorHandler(401, "unauthorized user"));
   const { name, email } = req.body;
-
   const loginUser = await UserModel.findById(userID);
-
-  if (!loginUser) {
-    return res.status(401).json({
-      success: false,
-      message: "unauthorized user",
-    });
-  }
-
+  if (!loginUser) return next(new ErrorHandler(401, "unauthorized user"));
   if (email) {
     loginUser.email = email;
   }
   if (name) {
     loginUser.name = name;
   }
-
-  // await UserModel.findByIdAndUpdate(userID, {name, email})
   await loginUser.save();
-
   return res.status(200).json({
     success: true,
     message: "profile updated",
   });
-};
+});
 
-export const logoutController = async (req, res) => {
+export const logoutController = catchAsyncError(async (req, res) => {
   res
     .cookie("token", null, {
       expires: new Date(Date.now()),
@@ -164,60 +73,32 @@ export const logoutController = async (req, res) => {
       success: true,
       message: "LoggedOut Successfully ",
     });
-};
+});
 
-export const changeController = async (req, res) => {
+export const changeController = catchAsyncError(async (req, res) => {
   const userId = req.id;
   const { currentPassword, newPassword } = req.body;
-
-  if (!userId) {
-    return res.status(401).json({
-      success: false,
-      message: "Unauthorized User",
-    });
-  }
-
+  if (!userId) return next(new ErrorHandler(401, "unathorized user"));
   const user = await UserModel.findById(userId).select("+password");
-
-  if (!user) {
-    return res.status(401).json({
-      success: false,
-      message: "Unauthorized User",
-    });
-  }
-
+  if (!user) return next(new ErrorHandler(401, "unauthorized user"));
   const checkPassword = await user.comparePassword(currentPassword);
-
-  if (!checkPassword) {
-    return res.status(401).json({
-      success: false,
-      message: "Current password is wrong",
-    });
-  }
-
+  if (!checkPassword)
+    return next(new ErrorHandler(401, "Current Password is wrong"));
   user.password = newPassword;
-
   await user.save();
-
   // await UserModel.findByIdAndUpdate(userId, {password})
-
   res.status(200).json({
     success: true,
     message: "Password Changed",
   });
-};
+});
 
-export const forgetController = async (req, res) => {
+export const forgetController = catchAsyncError(async (req, res) => {
   const { email } = req.body;
 
   const userAvailable = await UserModel.findOne({ email });
 
-  if (!userAvailable) {
-    return res.status(404).json({
-      success: false,
-      message: "not an user",
-    });
-  }
+  if (!userAvailable) return next(new ErrorHandler(404, "user not found"));
 
   const token = crypto.randomBytes(10).toString("hex");
 
@@ -246,15 +127,10 @@ export const forgetController = async (req, res) => {
 
   const isMailSent = await mailSender(email, subject, body);
 
-  if (!isMailSent) {
-    return res.status(401).json({
-      success: false,
-      message: "Mail is not send successfully",
-    });
-  }
+  if (!isMailSent) return next(new ErrorHandler(401, "Unable to send Mail"));
+
   // userAvailable.resetToken = token;
   // userAvailable.resetTokenExpire = new Date(Date.now() + 5 * 60 * 1000)
-
   // await userAvailable.save();
 
   await UserModel.findByIdAndUpdate(userAvailable._id, {
@@ -266,21 +142,17 @@ export const forgetController = async (req, res) => {
     success: true,
     messaga: "mail send successfully",
   });
-};
-export const resetController = async (req, res) => {
+});
+
+export const resetController = catchAsyncError(async (req, res) => {
   const { token } = req.params;
   const { password } = req.body;
   const user = await UserModel.findOne({
     resetToken: token,
     resetTokenExpire: { $gt: Date.now() },
   }).select("+password");
-  if (!user) {
-    return res.status(404).json({
-      success: false,
-      message: "not an user",
-    });
-  }
-
+  if (!user)
+    return next(new ErrorHandler(402, "Invalid or Expired Reset Token"));
   user.password = password;
   user.resetToken = null;
   user.resetTokenExpire = null;
@@ -289,33 +161,17 @@ export const resetController = async (req, res) => {
     success: true,
     message: "password changed successfully",
   });
-};
+});
 
-export const deleteController = async (req, res) => {
+export const deleteController = catchAsyncError(async (req, res) => {
   const { email, password } = req.body;
-console.log(email, password)
   const checkUser = await UserModel.findOne({ email }).select("+password");
-
-  if (!checkUser) {
-    return res.status(401).json({
-      success: false,
-      message: "unauthorized user",
-    });
-  }
-
+  if (!checkUser) return next(new ErrorHandler(401, "unauthorized user"));
   const match = await checkUser.comparePassword(password);
-
-  if (!match) {
-    return res.status(401).json({
-      success: false,
-      message: "unauthorized user",
-    });
-  }
-
+  if (!match) return next(new ErrorHandler(401, "unauthorized user"));
   await checkUser.deleteOne();
-
   return res.status(200).json({
     success: true,
     messaga: "user deleted successfully",
   });
-};
+});

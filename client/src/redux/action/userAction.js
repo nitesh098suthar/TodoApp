@@ -21,7 +21,7 @@ export const signup = (name, email, password) => async (dispatch) => {
     dispatch({ type: "signupRes", payload: data });
   } catch (e) {
     console.log(e);
-    dispatch({ type: "signupRej", payload: "error occurred" });
+    dispatch({ type: "signupRej", payload: error.response.data.error });
   }
 };
 
@@ -37,7 +37,7 @@ export const login = (email, password) => async (dispatch) => {
     dispatch({ type: "loginRes", payload: data });
   } catch (error) {
     console.log(error);
-    dispatch({ type: "loginRej", payload: "error occurred" });
+    dispatch({ type: "loginRej", payload: error.response.data.error });
   }
 };
 
@@ -62,7 +62,7 @@ export const forgetPassword = (email) => async (dispatch) => {
     console.log(error);
     dispatch({
       type: "forgetPasswordRej",
-      payload: "error occurred",
+      payload: error.response.data.error,
     });
   }
 };
@@ -83,7 +83,10 @@ export const changePassword =
     } catch (error) {
       console.log(error);
 
-      dispatch({ type: "changePasswordRej", payload: "error occurred" });
+      dispatch({
+        type: "changePasswordRej",
+        payload: error.response.data.error,
+      });
     }
   };
 
@@ -99,7 +102,7 @@ export const deleteProfile = (email, password) => async (dispatch) => {
     });
     dispatch({ type: "deleteRes", payload: data });
   } catch (error) {
-    dispatch({ type: "deleteRej", payload: "error" });
+    dispatch({ type: "deleteRej", payload: error.response.data.error });
   }
 };
 
@@ -115,7 +118,7 @@ export const logOut = () => async (dispatch) => {
   } catch (error) {
     console.log(error);
 
-    dispatch({ type: "logOutRej", payload: "error occured" });
+    dispatch({ type: "logOutRej", payload: error.response.data.error });
   }
 };
 
@@ -130,7 +133,7 @@ export const getUser = () => async (dispatch) => {
     dispatch({ type: "getUserRes", payload: data });
   } catch (error) {
     console.log(error);
-    dispatch({ type: "getUserRej", payload: "error occurred" });
+    dispatch({ type: "getUserRej", payload: error.response.data.error });
   }
 };
 
@@ -148,7 +151,7 @@ export const editUser = (name, email) => async (dispatch) => {
     dispatch({ type: "editUserRes", payload: data });
   } catch (error) {
     console.log(error);
-    dispatch({ type: "editUserRej", payload: "error occurred" });
+    dispatch({ type: "editUserRej", payload: error.response.data.error });
   }
 };
 
@@ -172,6 +175,6 @@ export const resetPassword = (token, password) => async (dispatch) => {
   } catch (error) {
     console.log(error);
 
-    dispatch({ type: "resetPasswordRej", payload: "error occurred" });
+    dispatch({ type: "resetPasswordRej", payload: error.response.data.error });
   }
 };

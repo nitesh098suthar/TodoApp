@@ -1,6 +1,6 @@
-import React, { useState } from "react";
-import { useDispatch } from "react-redux";
-import {useNavigate, useParams} from "react-router-dom"
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate, useParams } from "react-router-dom";
 
 import {
   Box,
@@ -13,13 +13,24 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { resetPassword } from "../../redux/action/userAction";
+import toast from "react-hot-toast";
 
-const ResetPassword = ({isAuth}) => {
-
-
-  const {token} = useParams();
-  console.log(token)
+const ResetPassword = ({ isAuth }) => {
   const dispatch = useDispatch();
+  const { message, error } = useSelector((state) => state.auth);
+  useEffect(() => {
+    if (message) {
+      toast.success(message);
+      dispatch({ type: "clearMessage" });
+    }
+    if (error) {
+      toast.error(error);
+      dispatch({ type: "clearError" });
+    }
+  }, [message, error]);
+
+  const { token } = useParams();
+  console.log(token);
   const nav = useNavigate();
 
   const [newPassword, setNewPassword] = useState("");
@@ -28,20 +39,16 @@ const ResetPassword = ({isAuth}) => {
   const submitHandler = (e) => {
     e.preventDefault();
 
-    if(newPassword !== confirmPassword)
-    {
-      return alert("Both passwords must match")
+    if (newPassword !== confirmPassword) {
+      return alert("Both passwords must match");
     }
 
     dispatch(resetPassword(token, newPassword));
-  }
+  };
 
-
-  useEffect(()=>{
-    if(isAuth) return nav("/me")
-  }, [isAuth, nav])
-
-
+  useEffect(() => {
+    if (isAuth) return nav("/me");
+  }, [isAuth, nav]);
 
   return (
     <>
@@ -72,7 +79,7 @@ const ResetPassword = ({isAuth}) => {
               bgColor="black"
               color="white"
               children="Reset Password"
-              onClick= {submitHandler}
+              onClick={submitHandler}
             />
           </FormControl>
         </VStack>

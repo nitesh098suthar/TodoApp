@@ -13,8 +13,22 @@ import {
   Heading,
   HStack,
 } from "@chakra-ui/react";
+import toast from 'react-hot-toast'
 
 const EditProfile = ({ isAuth }) => {
+  const dispatch = useDispatch();
+  const {message , error} = useSelector(state=> state.auth)
+  useEffect(() => {
+    if (message) {
+      toast.success(message);
+      dispatch({ type: "clearMessage" });
+    }
+    if (error) {
+      toast.error(error);
+      dispatch({ type: "clearError" });
+    }
+  }, [message, error]);
+
   const { user, loading } = useSelector((state) => state.auth);
   const [userData, setUserData] = useState({
     email: user?.email,
@@ -26,7 +40,6 @@ const EditProfile = ({ isAuth }) => {
     setUserData({ ...userData, [e.target.name]: value });
   };
 
-  const dispatch = useDispatch();
   const nav = useNavigate();
 
   const submitHandler =async (e) => {

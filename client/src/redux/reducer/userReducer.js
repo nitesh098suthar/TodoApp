@@ -3,8 +3,6 @@ import { createReducer } from "@reduxjs/toolkit";
 const initialState = {};
 
 const userReducer = createReducer(initialState, {
-
-
   loginReq: (state) => {
     state.loading = true;
     state.isAuthenticated = false;
@@ -19,9 +17,6 @@ const userReducer = createReducer(initialState, {
     state.error = action.payload;
     state.isAuthenticated = false;
   },
-
-
-
 
   signupReq: (state) => {
     state.loading = true;
@@ -38,8 +33,6 @@ const userReducer = createReducer(initialState, {
     state.isAuthenticated = false;
   },
 
-
-  
   changePasswordReq: (state) => {
     state.loading = true;
   },
@@ -51,8 +44,6 @@ const userReducer = createReducer(initialState, {
     state.loading = false;
     state.error = action.payload;
   },
-
-
 
   forgetPasswordReq: (state) => {
     state.loading = true;
@@ -66,8 +57,6 @@ const userReducer = createReducer(initialState, {
     state.error = action.payload;
   },
 
-
-
   resetPasswordReq: (state) => {
     state.loading = true;
   },
@@ -80,8 +69,6 @@ const userReducer = createReducer(initialState, {
     state.error = action.payload;
   },
 
-
-
   getUserReq: (state) => {
     state.loading = true;
     state.isAuthenticated = false;
@@ -90,19 +77,13 @@ const userReducer = createReducer(initialState, {
     state.loading = false;
     state.user = action.payload.user;
     state.isAuthenticated = true;
-
   },
   getUserRej: (state, action) => {
     state.loading = false;
     state.error = action.payload;
     state.isAuthenticated = false;
-
   },
 
-
-
-
-  
   editUserReq: (state) => {
     state.loading = true;
   },
@@ -115,8 +96,6 @@ const userReducer = createReducer(initialState, {
     state.error = action.payload;
   },
 
-
-  
   logOutReq: (state) => {
     state.loading = true;
   },
@@ -130,8 +109,6 @@ const userReducer = createReducer(initialState, {
     state.error = action.payload;
   },
 
-
-
   deleteReq: (state) => {
     state.loading = true;
   },
@@ -144,9 +121,12 @@ const userReducer = createReducer(initialState, {
     state.error = action.payload;
   },
 
-
-  
+  clearMessage: (state) => {
+    state.message = null;
+  },
+  clearError: (state) => {
+    state.error = null;
+  },
 });
-
 
 export default userReducer;

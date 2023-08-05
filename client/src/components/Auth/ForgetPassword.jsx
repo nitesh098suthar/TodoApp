@@ -9,15 +9,27 @@ import {
   Input,
   VStack,
 } from "@chakra-ui/react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {FaPaperPlane} from 'react-icons/fa'
 import { useNavigate } from "react-router-dom";
 import { forgetPassword } from "../../redux/action/userAction";
-import {useDispatch} from 'react-redux'
+import {useDispatch, useSelector} from 'react-redux'
+import toast from 'react-hot-toast'
 
 const ForgetPassword = ({isAuth}) => {
-
   const dispatch = useDispatch();
+  const {message , error} = useSelector(state=> state.auth)
+  useEffect(() => {
+    if (message) {
+      toast.success(message);
+      dispatch({ type: "clearMessage" });
+    }
+    if (error) {
+      toast.error(error);
+      dispatch({ type: "clearError" });
+    }
+  }, [message, error]);
+
   const nav = useNavigate();
 
   const [email, setEmail] = useState("");

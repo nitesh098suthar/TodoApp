@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux"; //for use dispatch functions
-import { deleteProfile, getUser, login } from "../../redux/action/userAction";
+import { useDispatch, useSelector } from "react-redux"; //for use dispatch functions
+import { deleteProfile } from "../../redux/action/userAction";
 
 import {
   FormControl,
@@ -14,9 +14,21 @@ import {
   VStack,
   Heading,
 } from "@chakra-ui/react";
+import toast from "react-hot-toast";
 
-const DeleteUser = ({ isAuth }) => {
+const DeleteUser = () => {
   const dispatch = useDispatch();
+  const { message, error } = useSelector((state) => state.auth);
+  useEffect(() => {
+    if (message) {
+      toast.success(message);
+      dispatch({ type: "clearMessage" });
+    }
+    if (error) {
+      toast.error(error);
+      dispatch({ type: "clearError" });
+    }
+  }, [message, error]);
   const nav = useNavigate();
 
   const [userData, setUserData] = useState({
@@ -33,7 +45,7 @@ const DeleteUser = ({ isAuth }) => {
     e.preventDefault();
     console.log(userData.email, userData.password);
     await dispatch(deleteProfile(userData.email, userData.password));
-    nav('/')
+    nav("/");
   };
 
   // useEffect(() => {

@@ -10,14 +10,24 @@ import {
   Box,
 } from "@chakra-ui/react";
 import { changePassword } from "../../redux/action/userAction";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-
-const ChangePassword = ({isAuth}) => {
-
+import toast from "react-hot-toast";
+const ChangePassword = ({ isAuth }) => {
   const dispatch = useDispatch();
-  const nav = useNavigate();
+  const { message, error } = useSelector((state) => state.auth);
+  useEffect(() => {
+    if (message) {
+      toast.success(message);
+      dispatch({ type: "clearMessage" });
+    }
+    if (error) {
+      toast.error(error);
+      dispatch({ type: "clearError" });
+    }
+  }, [message, error]);
 
+  const nav = useNavigate();
 
   const [userData, setUserData] = useState({
     currentPassword: "",
@@ -30,16 +40,15 @@ const ChangePassword = ({isAuth}) => {
     setUserData({ ...userData, [e.target.name]: value });
   };
 
-  const submitHandler= (e) => { 
+  const submitHandler = (e) => {
     e.preventDefault();
-    dispatch(changePassword(userData.currentPassword, userData.newPassword))
-  }
-useEffect(()=>{
-  if(!isAuth)
-  {
-    return nav("/")
-  }
-}, [isAuth, nav])
+    dispatch(changePassword(userData.currentPassword, userData.newPassword));
+  };
+  useEffect(() => {
+    if (!isAuth) {
+      return nav("/");
+    }
+  }, [isAuth, nav]);
   return (
     <>
       <Grid className="auth-parent">

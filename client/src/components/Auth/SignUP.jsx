@@ -12,16 +12,29 @@ import {
   VStack,
   Heading,
 } from "@chakra-ui/react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { getUser, signup } from "../../redux/action/userAction";
+import toast from "react-hot-toast";
 
 const SignUP = ({ isAuth }) => {
   const dispatch = useDispatch();
+  const { message, error } = useSelector((state) => state.auth);
+  useEffect(() => {
+    if (message) {
+      toast.success(message);
+      dispatch({ type: "clearMessage" });
+    }
+    if (error) {
+      toast.error(error);
+      dispatch({ type: "clearError" });
+    }
+  }, [message, error]);
+
   const [nameData, setNameData] = useState("");
   const [emailData, setEmailData] = useState("");
   const [passwordData, setPasswordData] = useState("");
-  
-  const submitHandler =async (e) => {
+
+  const submitHandler = async (e) => {
     e.preventDefault();
     await dispatch(signup(nameData, emailData, passwordData));
     dispatch(getUser());

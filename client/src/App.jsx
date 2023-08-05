@@ -1,4 +1,5 @@
 import "./App.css";
+import { Toaster } from "react-hot-toast";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Header from "./components/layout/Header";
 import Footer from "./components/layout/Footer";
@@ -19,12 +20,13 @@ import { useDispatch, useSelector } from "react-redux";
 import { useEffect } from "react";
 import Spinner from "./components/layout/Spinner";
 import DeleteUser from "./components/Auth/DeleteUser";
+import EditTask from "./components/Task/EditTask";
 
 function App() {
   const dispatch = useDispatch();
 
   const { isAuthenticated, loading, user } = useSelector((state) => state.auth);
-// mavigate
+
   useEffect(() => {
     dispatch(getUser());
   }, [dispatch]);
@@ -39,7 +41,10 @@ function App() {
           <Route path="/aboutus" element={<AboutUs />} />
           <Route path="/contactus" element={<ContactUs />} />
           <Route path="/signup" element={<SignUP isAuth={isAuthenticated} />} />
-          <Route path="/delete" element={<DeleteUser isAuth={isAuthenticated} />} />
+          <Route
+            path="/delete"
+            element={<DeleteUser isAuth={isAuthenticated} />}
+          />
           <Route
             path="/login"
             element={<LoginPage isAuth={isAuthenticated} />}
@@ -62,9 +67,14 @@ function App() {
             element={<EditProfile isAuth={isAuthenticated} />}
           />
           <Route path="/task" element={<Task isAuth={isAuthenticated} />} />
+          <Route
+            path="/task/edit/:id"
+            element={<EditTask isAuth={isAuthenticated} />}
+          />
           <Route path="*" element={<NotFound />} />
         </Routes>
         <Footer />
+        <Toaster />
       </Router>
     </>
   );

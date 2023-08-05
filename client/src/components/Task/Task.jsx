@@ -10,23 +10,41 @@ import {
   Box,
   Heading,
   Text,
+  Spinner,
+  Flex,
+  HStack,
+  Spacer,
 } from "@chakra-ui/react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { createTask, getTask } from "../../redux/action/taskAction";
+import { createTask, deleteTask, getTask } from "../../redux/action/taskAction";
+import { FaTrash, FaEdit } from "react-icons/fa";
+import toast from "react-hot-toast";
 
 const Task = () => {
+  const dispatch = useDispatch();
+  const { message, error } = useSelector((state) => state.auth);
+  useEffect(() => {
+    if (message) {
+      toast.success(message);
+      dispatch({ type: "clearMessage" });
+    }
+    if (error) {
+      toast.error(error);
+      dispatch({ type: "clearError" });
+    }
+  }, [message, error]);
+
   const inputHandler = (e) => {
     setUserData({ ...userData, [e.target.name]: e.target.value });
   };
-const {isAuthenticated, loading} = useSelector(state=>state.auth);
-const dispatch = useDispatch();
-const {loading:taskLoading, tasks} = useSelector(state=> state.task)
-const [userData, setUserData] = useState({
+  const { isAuthenticated, loading } = useSelector((state) => state.auth);
+  const { loading: taskLoading, tasks } = useSelector((state) => state.task);
+  const [userData, setUserData] = useState({
     title: "",
     description: "",
   });
-// navigate
+  // navigate
   const nav = useNavigate();
 
   useEffect(() => {
@@ -35,15 +53,21 @@ const [userData, setUserData] = useState({
     }
   }, [isAuthenticated, nav]);
 
-  const submitHandler =async (e) => {
+  const submitHandler = async (e) => {
     e.preventDefault();
     await dispatch(createTask(userData.title, userData.description));
     dispatch(getTask());
+    setUserData({ title: "", description: "" });
   };
 
-  useEffect(()=>{
+  useEffect(() => {
     dispatch(getTask());
-  },[])
+  }, []);
+
+  const deleteHandler = async (id) => {
+    await dispatch(deleteTask(id));
+    dispatch(getTask());
+  };
 
   return (
     <>
@@ -77,14 +101,33 @@ const [userData, setUserData] = useState({
       </Box>
 
       <Box>
-        <Box padding="2rem" bgColor="yellow">
-          <Heading size="1rem">water is falling from the sky</Heading>
-          <Text size="0.5rem">
-            Lorem ipsum dolor sit amet, consectetur adipisicing elit. Commodi
-            totam officia ipsa similique consectetur, incidunt sapiente optio
-            deleniti aut illum.
-          </Text>
-        </Box>
+        {taskLoading ? (
+          <Spinner />
+        ) : (
+          tasks?.map((task) => (
+            <Flex
+              padding="2rem"
+              m="2rem"
+              borderRadius=".5rem"
+              bgColor="purple.100"
+              key={task._id}
+            >
+              <Box>
+                <Heading size="1rem">{task.title}</Heading>
+                <Text size="0.5rem">{task.description}</Text>
+              </Box>
+              <Spacer />
+              <HStack>
+                <Link to={"/task/edit/" + task._id}>
+                  <FaEdit />
+                </Link>
+                <Button onClick={() => deleteHandler(task._id)}>
+                  <FaTrash />
+                </Button>
+              </HStack>
+            </Flex>
+          ))
+        )}
       </Box>
     </>
   );

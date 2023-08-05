@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux"; //for use dispatch functions 
+import { useDispatch, useSelector } from "react-redux"; //for use dispatch functions
 import { getUser, login } from "../../redux/action/userAction";
-
 
 import {
   FormControl,
@@ -15,10 +14,22 @@ import {
   VStack,
   Heading,
 } from "@chakra-ui/react";
+import toast from 'react-hot-toast'
 
-
-const LoginPage = ({isAuth}) => {
+const LoginPage = ({ isAuth }) => {
   const dispatch = useDispatch();
+  const {message , error} = useSelector(state=> state.auth)
+  useEffect(() => {
+    if (message) {
+      toast.success(message);
+      dispatch({ type: "clearMessage" });
+    }
+    if (error) {
+      toast.error(error);
+      dispatch({ type: "clearError" });
+    }
+  }, [message, error]);
+
   const nav = useNavigate();
 
   const [userData, setUserData] = useState({
@@ -30,11 +41,10 @@ const LoginPage = ({isAuth}) => {
     const value = e.target.value;
     setUserData({ ...userData, [e.target.name]: value });
   };
-
   const submitHandler = async (e) => {
     e.preventDefault();
     await dispatch(login(userData.email, userData.password));
-    dispatch(getUser())
+    dispatch(getUser());
   };
 
   useEffect(() => {
@@ -43,9 +53,7 @@ const LoginPage = ({isAuth}) => {
     }
   }, [nav, isAuth]);
 
-  
   return (
-
     <>
       <Grid className="auth-parent">
         <VStack className="form-container" width={{ md: "90vw", lg: "50vw" }}>
