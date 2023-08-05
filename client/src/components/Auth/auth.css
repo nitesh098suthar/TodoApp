@@ -1,0 +1,19 @@
+.auth-parent {
+    height: 100vh;
+    background-color: #e6e6e6;
+    place-items: center;
+}
+.form-container {
+    background-color: #fff;
+    padding: 2rem;
+    border-radius: 1rem;
+    box-shadow: 0 0 20px 7px rgba(0,0,0,.1);
+}
+.form-itself label {
+    display: block;
+    margin-top: 2rem;    
+}
+.auth-btn {
+    margin: 2rem 0;
+    width: 100%;
+}
