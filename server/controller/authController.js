@@ -52,7 +52,6 @@ export const signupController = async (req, res) => {
 export const loginController = async (req, res) => {
   try {
     const { email, password } = req.body; //nitesh098suthar@gmial.com 99999
-    console.log(email, password);
     const isAvailable = await UserModel.findOne({ email }).select("+password");
 
     if (!isAvailable) {
@@ -85,19 +84,20 @@ export const loginController = async (req, res) => {
       });
   } catch (e) {
     console.log(e);
-    // return res.status(401).json({
-    //     success: false,
-    //     error: e
-    // })
+    return res.status(401).json({
+        success: false,
+        error: 'error'
+    })
   }
 };
 
 export const getController = async (req, res) => {
+
   const userId = req.id;
   if (!userId) {
     return res.status(401).json({
       success: false,
-      message: "Unauthorized User",
+      message: "Unauthorized User 3",
     });
   }
 
@@ -106,7 +106,7 @@ export const getController = async (req, res) => {
   if (!user) {
     return res.status(401).json({
       success: false,
-      message: "Unauthorized User",
+      message: "Unauthorized User 4",
     });
   }
 
@@ -293,7 +293,7 @@ export const resetController = async (req, res) => {
 
 export const deleteController = async (req, res) => {
   const { email, password } = req.body;
-
+console.log(email, password)
   const checkUser = await UserModel.findOne({ email }).select("+password");
 
   if (!checkUser) {

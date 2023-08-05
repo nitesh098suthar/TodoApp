@@ -13,7 +13,7 @@ import {
   Heading,
 } from "@chakra-ui/react";
 import { useDispatch } from "react-redux";
-import { signup } from "../../redux/action/userAction";
+import { getUser, signup } from "../../redux/action/userAction";
 
 const SignUP = ({ isAuth }) => {
   const dispatch = useDispatch();
@@ -21,9 +21,10 @@ const SignUP = ({ isAuth }) => {
   const [emailData, setEmailData] = useState("");
   const [passwordData, setPasswordData] = useState("");
   
-  const submitHandler = (e) => {
+  const submitHandler =async (e) => {
     e.preventDefault();
-    dispatch(signup(nameData, emailData, passwordData));
+    await dispatch(signup(nameData, emailData, passwordData));
+    dispatch(getUser());
   };
   const nav = useNavigate();
   useEffect(() => {

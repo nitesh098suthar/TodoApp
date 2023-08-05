@@ -18,6 +18,7 @@ import { getUser } from "./redux/action/userAction";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect } from "react";
 import Spinner from "./components/layout/Spinner";
+import DeleteUser from "./components/Auth/DeleteUser";
 
 function App() {
   const dispatch = useDispatch();
@@ -26,18 +27,19 @@ function App() {
 
   useEffect(() => {
     dispatch(getUser());
-  }, []);
+  }, [dispatch]);
   return loading ? (
     <Spinner />
   ) : (
     <>
       <Router>
-        <Header />
+        <Header isAuth={isAuthenticated} />
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/aboutus" element={<AboutUs />} />
           <Route path="/contactus" element={<ContactUs />} />
           <Route path="/signup" element={<SignUP isAuth={isAuthenticated} />} />
+          <Route path="/delete" element={<DeleteUser isAuth={isAuthenticated} />} />
           <Route
             path="/login"
             element={<LoginPage isAuth={isAuthenticated} />}
