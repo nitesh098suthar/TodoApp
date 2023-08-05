@@ -24,7 +24,7 @@ function App() {
   const dispatch = useDispatch();
 
   const { isAuthenticated, loading, user } = useSelector((state) => state.auth);
-
+// mavigate
   useEffect(() => {
     dispatch(getUser());
   }, [dispatch]);
