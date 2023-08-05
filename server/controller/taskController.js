@@ -94,7 +94,7 @@ export const getController = async (req, res) => {
             })
     }
 
-    const tasks = await TaskModel.find({userID:userID})
+    const tasks = await TaskModel.find({userID})
     return res.status(200).json({
         success: true,
         tasks

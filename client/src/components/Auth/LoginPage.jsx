@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux"; //for use dispatch functions 
-import { login } from "../../redux/action/userAction";
+import { getUser, login } from "../../redux/action/userAction";
 
 
 import {
@@ -31,9 +31,10 @@ const LoginPage = ({isAuth}) => {
     setUserData({ ...userData, [e.target.name]: value });
   };
 
-  const submitHandler = (e) => {
+  const submitHandler = async (e) => {
     e.preventDefault();
-    dispatch(login(userData.email, userData.password));
+    await dispatch(login(userData.email, userData.password));
+    dispatch(getUser())
   };
 
   useEffect(() => {
@@ -41,7 +42,10 @@ const LoginPage = ({isAuth}) => {
       return nav("/me");
     }
   }, [nav, isAuth]);
+
+  
   return (
+
     <>
       <Grid className="auth-parent">
         <VStack className="form-container" width={{ md: "90vw", lg: "50vw" }}>

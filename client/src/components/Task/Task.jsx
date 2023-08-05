@@ -1,28 +1,49 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
-    FormControl,
-    FormLabel,
-    FormErrorMessage,
-    FormHelperText,
-    Input,
-    Button,
-    Grid,
-    Box,
-    Heading,
-    Text
-  } from "@chakra-ui/react";
-  
-
+  FormControl,
+  FormLabel,
+  FormErrorMessage,
+  FormHelperText,
+  Input,
+  Button,
+  Grid,
+  Box,
+  Heading,
+  Text,
+} from "@chakra-ui/react";
+import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { createTask, getTask } from "../../redux/action/taskAction";
 
 const Task = () => {
   const inputHandler = (e) => {
     setUserData({ ...userData, [e.target.name]: e.target.value });
   };
-
-  const [userData, setUserData] = useState({
+const {isAuthenticated, loading} = useSelector(state=>state.auth);
+const dispatch = useDispatch();
+const {loading:taskLoading, tasks} = useSelector(state=> state.task)
+const [userData, setUserData] = useState({
     title: "",
     description: "",
   });
+
+  const nav = useNavigate();
+
+  useEffect(() => {
+    if (loading !== undefined && !isAuthenticated) {
+      return nav("/login");
+    }
+  }, [isAuthenticated, nav]);
+
+  const submitHandler =async (e) => {
+    e.preventDefault();
+    await dispatch(createTask(userData.title, userData.description));
+    dispatch(getTask());
+  };
+
+  useEffect(()=>{
+    dispatch(getTask());
+  },[])
 
   return (
     <>
@@ -48,6 +69,7 @@ const Task = () => {
             color="white"
             variant="solid"
             padding={"1rem 2rem"}
+            onClick={submitHandler}
           >
             Add Task
           </Button>

@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import {useDispatch} from "react-redux"
-import { editUser } from "../../redux/action/userAction";
+import { useDispatch, useSelector } from "react-redux";
+import { editUser, getUser } from "../../redux/action/userAction";
 import {
   FormControl,
   FormLabel,
@@ -14,7 +14,8 @@ import {
   HStack,
 } from "@chakra-ui/react";
 
-const EditProfile = ({isAuth}) => {
+const EditProfile = ({ isAuth }) => {
+  const { user, loading } = useSelector((state) => state.auth);
   const [userData, setUserData] = useState({
     email: user?.email,
     name: user?.name,
@@ -25,24 +26,23 @@ const EditProfile = ({isAuth}) => {
     setUserData({ ...userData, [e.target.name]: value });
   };
 
-const dispatch = useDispatch();
-
-  const submitHandler =(e) =>{
-    e.preventDefault();
-    dispatch(editUser(userData.name, userData.email))
-  } 
-
+  const dispatch = useDispatch();
   const nav = useNavigate();
 
-  useEffect(()=> {
-    
-    if(!isAuth)
-    {
-      return nav("/login")
-    }
-  }, [isAuth, nav])
+  const submitHandler =async (e) => {
+    e.preventDefault();
+    await dispatch(editUser(userData.name, userData.email));
+    dispatch(getUser())
 
-    const {user, loading} = useSelector(state=>state.auth)
+    nav("/me")
+  };
+
+
+  useEffect(() => {
+    if (!isAuth) {
+      return nav("/login");
+    }
+  }, [isAuth, nav]);
 
   return (
     <>
@@ -75,11 +75,16 @@ const dispatch = useDispatch();
                 variant="solid"
                 colorScheme="purple"
                 children="Edit"
+                isLoading={loading}
                 onClick={submitHandler}
               />
-                <Link to="/me" >
-              <Button variant={"outline"}  children="Cancel" colorScheme="purple" />
-                    </Link>
+              <Link to="/me">
+                <Button
+                  variant={"outline"}
+                  children="Cancel"
+                  colorScheme="purple"
+                />
+              </Link>
             </HStack>
           </FormControl>
         </VStack>

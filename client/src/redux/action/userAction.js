@@ -93,13 +93,10 @@ export const deleteProfile = (email, password) => async (dispatch) => {
   try {
     dispatch({ type: "deleteReq" });
 
-    const { data } = await authInstance.delete(
-      "/user/me",
-      { email, password },
-      {
-        withCredentials: false,
-      }
-    );
+    console.log(email, password);
+    const { data } = await authInstance.delete("/user/me", {
+      data: { email, password },
+    });
     dispatch({ type: "deleteRes", payload: data });
   } catch (error) {
     dispatch({ type: "deleteRej", payload: "error" });

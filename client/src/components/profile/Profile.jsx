@@ -1,21 +1,24 @@
-import { Box, Heading, Text, Button, Spacer, VStack, Spinner } from "@chakra-ui/react";
+import { Box, Heading, Text, Button, VStack } from "@chakra-ui/react";
 import React, { useEffect } from "react";
 import { useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
+import Spinner from "../layout/Spinner";
 
-const Profile = ({isAuth}) => {
+const Profile = ({ isAuth }) => {
 
-  const {user, loading} = useSelector(state=>state.auth)
-
+  const {loading, user} = useSelector((state) => state.auth);
+  
   const nav = useNavigate();
 
-  useEffect(()=>{
-    if(!isAuth){
-          return nav("/")
+  useEffect(() => {
+    if (!isAuth) {
+      return nav("/");
     }
-  }, [isAuth, nav])
+  }, [isAuth, nav]);
 
-  return (
+  return loading ? (
+    <Spinner />
+  ) : (
     <>
       <Box display="flex" justifyContent="center" alignItems="center" h="100vh">
         <Box>
@@ -29,9 +32,12 @@ const Profile = ({isAuth}) => {
             <Button variant="solid" colorScheme="purple">
               <Link to={"/me/edit"}>Edit Profile</Link>
             </Button>
-            <Button variant="outline" colorScheme="purple">
-              Delete Profile
-            </Button>
+
+            <Link to="/delete">
+              <Button variant="outline" colorScheme="purple">
+                Delete Profile
+              </Button>
+            </Link>
           </Box>
         </Box>
       </Box>
